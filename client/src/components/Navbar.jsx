@@ -2,13 +2,26 @@ import React, { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { assets } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
+import toast from 'react-hot-toast'
+import axios from "axios";
 
 const Navbar = () => {
     const [open, setOpen] = React.useState(false)
-    const {user, setUser, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount} = useAppContext();
+    const {user, setUser, setShowUserLogin, navigate, setSearchQuery, searchQuery, getCartCount, axios} = useAppContext();
     const logout =async ()=>{
-        setUser(null);
-        navigate('/')
+        try {
+            const {data} = await axios.get('/api/user/logout')
+            if(data.success){
+                toast.success(data.message)
+                setUser(null);
+                navigate('/')
+            }else{
+                toast.error(data.message)
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+        
     }
 
     useEffect(()=>{
@@ -18,7 +31,7 @@ const Navbar = () => {
     },[searchQuery])
 
   return (
-    <nav className="flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
+    <nav className="z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white relative transition-all">
 
             <NavLink to='/' onClick={()=> setOpen(false)}>
                 <img className="h-9" src={ assets.logo } alt="logo" />
@@ -48,8 +61,8 @@ const Navbar = () => {
                     <div className="relative group">
                         <img src={ assets.profile_icon } className='w-10' alt="" />
                         <ul className='hidden group-hover:block absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 w-30 rounded-md text-sm z-50'>
-                            <li onClick={()=> navigate('my-orders')} className='p-1.5 p1-3 hover:bg-primary/10 cursor-pointer'>My Orders</li>
-                            <li onClick={logout} className='p-1.5 p1-3 hover:bg-primary/10 cursor-pointer'>My Logout</li>
+                            <li onClick={()=> navigate('my-orders')} className='p-1.5 p1-3 hover:bg-primary/10 cursor-pointer'>Orders</li>
+                            <li onClick={logout} className='p-1.5 p1-3 hover:bg-primary/10 cursor-pointer'>Logout</li>
                         </ul>
                     </div>
                 )}
